@@ -92,9 +92,30 @@ func (this *Trie) Find(key string) (flag bool, value interface{}, index int) {
 	}
 }
 
+// 功能跟Find完全一样，只是参数在外面就已经将string拆分成了[]rune
+// 返回的index为[]rune的下标：
+// 比如：词典中有一个词："世界"，key为"世界你好"，那么index为2
+func (this *Trie) FindByRunes(runes []rune) (flag bool, value interface{}, index int) {
+	node, i := this.findNodeByRunes(runes)
+	if node == nil {
+		return false, nil, i
+	} else {
+		return node.flag, node.value, i
+	}
+}
+
 // 匹配出所有前缀为key的词所在节点的value值
 func (this *Trie) PrefixMatch(key string) []interface{} {
 	node, _ := this.findNode(key)
+	if node != nil {
+		return this.walk(node)
+	}
+	return []interface{}{}
+}
+
+// 功能跟PrefixMatch完全一样，只是参数在外面就已经将string拆分成了[]rune
+func (this *Trie) PrefixMatchByRunes(runes []rune) []interface{} {
+	node, _ := this.findNodeByRunes(runes)
 	if node != nil {
 		return this.walk(node)
 	}
@@ -138,6 +159,33 @@ func (this *Trie) findNode(key string) (node *trieNode, index int) {
 
 	if curNode.flag {
 		index = len(key)
+	}
+
+	return curNode, index
+}
+
+// 功能跟findNode完全一样，只是参数在外面就已经将string拆分成了[]rune
+// 返回的index为[]rune的下标：
+// 比如：词典中有一个词："世界"，key为"世界你好"，那么index为2
+func (this *Trie) findNodeByRunes(runes []rune) (node *trieNode, index int) {
+	curNode := this.root
+	ff := false
+	for k, v := range runes {
+		if ff {
+			index = k
+			ff = false
+		}
+		if curNode.child[v] == nil {
+			return nil, index
+		}
+		curNode = curNode.child[v]
+		if curNode.flag {
+			ff = true
+		}
+	}
+
+	if curNode.flag {
+		index = len(runes)
 	}
 
 	return curNode, index

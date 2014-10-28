@@ -1,7 +1,6 @@
 package trie
 
 import (
-	"fmt"
 	"math/rand"
 	"strconv"
 	"testing"
@@ -30,8 +29,16 @@ func TestInsert(t *testing.T) {
 	if flag != true || value.(string) != "ab" || index != 2 {
 		t.Fatal()
 	}
+	flag, value, index = tr.FindByRunes([]rune{'a', 'b'})
+	if flag != true || value.(string) != "ab" || index != 2 {
+		t.Fatal()
+	}
 
 	flag, value, index = tr.Find("cde")
+	if flag != false || value != nil || index != 2 {
+		t.Fatal()
+	}
+	flag, value, index = tr.FindByRunes([]rune{'c', 'd', 'e'})
 	if flag != false || value != nil || index != 2 {
 		t.Fatal()
 	}
@@ -40,9 +47,17 @@ func TestInsert(t *testing.T) {
 	if flag != false || value != nil || index != 4 {
 		t.Fatal()
 	}
+	flag, value, index = tr.FindByRunes([]rune{'a', 'b', 'c', 'd', 'e'})
+	if flag != false || value != nil || index != 4 {
+		t.Fatal()
+	}
 
 	flag, value, index = tr.Find("你好")
 	if flag != true || value.(string) != "你好" || index != 6 {
+		t.Fatal()
+	}
+	flag, value, index = tr.FindByRunes([]rune{'你', '好'})
+	if flag != true || value.(string) != "你好" || index != 2 {
 		t.Fatal()
 	}
 
@@ -50,8 +65,16 @@ func TestInsert(t *testing.T) {
 	if flag != false || value != nil || index != 6 {
 		t.Fatal()
 	}
+	flag, value, index = tr.FindByRunes([]rune{'世', '界', '你', '好'})
+	if flag != false || value != nil || index != 2 {
+		t.Fatal()
+	}
 
 	flag, value, index = tr.Find("hello")
+	if flag != false || value != nil || index != 0 {
+		t.Fatal()
+	}
+	flag, value, index = tr.FindByRunes([]rune{'h', 'e', 'l', 'l', 'o'})
 	if flag != false || value != nil || index != 0 {
 		t.Fatal()
 	}
@@ -136,6 +159,10 @@ func TestPrefixMatch(t *testing.T) {
 	if len(ret) != 2 || ret[0].(string) != "我是gan" || ret[1].(string) != "我是gansidui" {
 		t.Fatal()
 	}
+	ret = tr.PrefixMatchByRunes([]rune{'我', '是', 'g', 'a', 'n'})
+	if len(ret) != 2 || ret[0].(string) != "我是gan" || ret[1].(string) != "我是gansidui" {
+		t.Fatal()
+	}
 
 	ret = tr.PrefixMatch("哈哈")
 	if len(ret) != 0 {
@@ -151,8 +178,6 @@ func TestPrefixMatch(t *testing.T) {
 	if len(ret) != 9 {
 		t.Fatal()
 	}
-
-	fmt.Println("hello")
 }
 
 func BenchmarkFind(b *testing.B) {
